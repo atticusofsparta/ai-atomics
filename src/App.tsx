@@ -1,4 +1,6 @@
 import '@radix-ui/themes/styles.css';
+import { PermissionType } from 'arconnect';
+import { ArweaveWalletKit } from 'arweave-wallet-kit';
 import {
   Navigate,
   Route,
@@ -22,21 +24,15 @@ import {
   Transaction,
 } from './components/pages';
 
-import { ArweaveWalletKit } from "arweave-wallet-kit"
-import { PermissionType } from 'arconnect';
-
 const APP_PERMISSIONS: PermissionType[] = [
-  "ACCESS_ADDRESS",
-  "SIGN_TRANSACTION",
-  "ENCRYPT",
-  "DECRYPT",
-  "ACCESS_ARWEAVE_CONFIG"
-]
+  'ACCESS_ADDRESS',
+  'SIGN_TRANSACTION',
+  'ENCRYPT',
+  'DECRYPT',
+  'ACCESS_ARWEAVE_CONFIG',
+];
 
 function App() {
-
-
-
   const router = createHashRouter(
     createRoutesFromElements(
       <Route element={<Layout />} errorElement={<NotFound />}>
@@ -56,21 +52,19 @@ function App() {
 
   return (
     <>
-    <ArweaveWalletKit
-    config={{
-      permissions:APP_PERMISSIONS,
-      ensurePermissions: true,
-      
-    }}
-    theme={{
-      displayTheme: "dark",
-      titleHighlight: {r:100,b:100,g:30},
-      accent: {r:100,b:100,g:30},
-      radius: "minimal",
-
-    }}
-    >
-      <RouterProvider router={router} />
+      <ArweaveWalletKit
+        config={{
+          permissions: APP_PERMISSIONS,
+          ensurePermissions: true,
+        }}
+        theme={{
+          displayTheme: 'dark',
+          titleHighlight: { r: 100, b: 100, g: 30 },
+          accent: { r: 100, b: 100, g: 30 },
+          radius: 'minimal',
+        }}
+      >
+        <RouterProvider router={router} />
       </ArweaveWalletKit>
     </>
   );

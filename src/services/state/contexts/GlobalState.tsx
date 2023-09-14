@@ -1,7 +1,7 @@
 import React, { Dispatch, createContext, useContext, useReducer } from 'react';
 
-import type { Action } from '../reducers/GlobalStateReducer';
 import { TransactionCache } from '../../../utils/TransactionCache';
+import type { Action } from '../reducers/GlobalStateReducer';
 
 export type GlobalState = {
   walletAddress?: string;

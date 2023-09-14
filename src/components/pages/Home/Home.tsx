@@ -1,22 +1,30 @@
+import { InboxOutlined } from '@ant-design/icons';
+import { Button } from '@radix-ui/themes';
 import * as tf from '@tensorflow/tfjs';
 import { Upload } from 'antd';
-import { InboxOutlined } from '@ant-design/icons';
+import Arweave from 'arweave';
 import { useApi } from 'arweave-wallet-kit';
-import { createTransaction, signTransaction, postTransaction } from 'arweavekit/transaction'
+import {
+  createTransaction,
+  postTransaction,
+  signTransaction,
+} from 'arweavekit/transaction';
+import { set } from 'lodash';
 import { useEffect, useState } from 'react';
+import ReactJson from 'react-json-view';
 
 import { useGlobalState } from '../../../services/state/contexts/GlobalState';
-import { TENSOR_LABELS, buildAtomicAssetTags, parseBase64Tx } from '../../../utils';
-import ReactJson from 'react-json-view'
-import { Button } from '@radix-ui/themes';
-import Arweave from 'arweave';
-import { set } from 'lodash';
+import {
+  TENSOR_LABELS,
+  buildAtomicAssetTags,
+  parseBase64Tx,
+} from '../../../utils';
 
 const arweave = Arweave.init({
   host: 'arweave.net',
   port: 443,
   protocol: 'https',
-})
+});
 
 function Home() {
   const [{ walletAddress, txCache }, dispatchGlobalState] = useGlobalState();
@@ -27,7 +35,9 @@ function Home() {
   const [file, setFile] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [deployingAsset, setDeployingAsset] = useState(false);
-  const [transactionHistory, setTransactionHistory] = useState<{[x:string]: any}>({});
+  const [transactionHistory, setTransactionHistory] = useState<{
+    [x: string]: any;
+  }>({});
 
   useEffect(() => {
     const history = txCache.getAllTransactions();
@@ -77,10 +87,10 @@ function Home() {
 
         return {
           classes: classesArray
-          .sort((a, b) => b!.probability - a!.probability)!
-          .slice(0, 9),
-        imageBlob: new Blob([file], { type: file.type })
-      }
+            .sort((a, b) => b!.probability - a!.probability)!
+            .slice(0, 9),
+          imageBlob: new Blob([file], { type: file.type }),
+        };
       }
     } catch (error) {
       console.error(error);
@@ -124,141 +134,201 @@ function Home() {
     }
   }
 
-  async function handleDeploy () {
-
+  async function handleDeploy() {
     try {
-      setDeployingAsset(true)
- if (!walletAddress) {
-        throw new Error('No wallet address found')
+      setDeployingAsset(true);
+      if (!walletAddress) {
+        throw new Error('No wallet address found');
       }
 
-      console.log(file)
+      console.log(file);
 
       const transaction = await createTransaction({
-        type:"data",
-        environment:"mainnet",
+        type: 'data',
+        environment: 'mainnet',
         data: await file.arrayBuffer(),
-        options:{
-        tags: atomicAsset
-        }
-      })
-    
+        options: {
+          tags: atomicAsset,
+        },
+      });
 
-    await signTransaction({
-        environment:"mainnet",
-        createdTransaction:transaction,
-      })
+      await signTransaction({
+        environment: 'mainnet',
+        createdTransaction: transaction,
+      });
 
       const transactionId = await postTransaction({
-        environment:"mainnet",
-        transaction:transaction
-      })
+        environment: 'mainnet',
+        transaction: transaction,
+      });
 
       if (!transactionId) {
-        throw new Error('No transaction id found')
+        throw new Error('No transaction id found');
       }
 
-      txCache.addTransaction(transactionId.transaction.id, JSON.parse(JSON.stringify(transaction)))
-
-  
-    } catch (error:any) {
-      alert(error?.message)
-      console.error(error)
+      txCache.addTransaction(
+        transactionId.transaction.id,
+        JSON.parse(JSON.stringify(transaction)),
+      );
+    } catch (error: any) {
+      alert(error?.message);
+      console.error(error);
     } finally {
-      setDeployingAsset(false)
+      setDeployingAsset(false);
     }
-
   }
 
   return (
-    <div className="page flex flex-column" style={{ padding: '30px 5%', maxWidth:"100%", boxSizing:"border-box" }}>
+    <div
+      className="page flex flex-column"
+      style={{ padding: '30px 5%', maxWidth: '100%', boxSizing: 'border-box' }}
+    >
       <div
         className="flex flex-column"
-        style={{ color: 'white', height: '100%',  overflow:"hidden", boxSizing:"border-box", maxWidth:"100%" }}
+        style={{
+          color: 'white',
+          height: '100%',
+          overflow: 'hidden',
+          boxSizing: 'border-box',
+          maxWidth: '100%',
+        }}
       >
-        <div className="flex flex-row" style={{gap:"20px"}}>
-          <div className="flex flex-column align-center justify-center" style={{flex: 1, border:"silver solid 2px", borderRadius:"7px", height:"100%", padding:"20px 30px", gap:"30px"}}>
-          <Upload.Dragger 
-          onChange={(file)=>{
-            console.log(file)
-             handleImageChange(file.file as any)
+        <div className="flex flex-row" style={{ gap: '20px' }}>
+          <div
+            className="flex flex-column align-center justify-center"
+            style={{
+              flex: 1,
+              border: 'silver solid 2px',
+              borderRadius: '7px',
+              height: '100%',
+              padding: '20px 30px',
+              gap: '30px',
             }}
-          listType='picture-card'
-          beforeUpload={()=> false}
           >
-            <div style={{color:"white", fontSize:"20px", padding:"100px 200px"}}>
-    <p>
-      <InboxOutlined style={{fontSize:"35px", color:"gold"}} />
-    </p>
-    <p>Click or drag file to this area to upload</p>
-    <p>
-      Support for a single image upload only.
-    </p>
-    </div>
-  </Upload.Dragger>
+            <Upload.Dragger
+              onChange={(file) => {
+                console.log(file);
+                handleImageChange(file.file as any);
+              }}
+              listType="picture-card"
+              beforeUpload={() => false}
+            >
+              <div
+                style={{
+                  color: 'white',
+                  fontSize: '20px',
+                  padding: '100px 200px',
+                }}
+              >
+                <p>
+                  <InboxOutlined style={{ fontSize: '35px', color: 'gold' }} />
+                </p>
+                <p>Click or drag file to this area to upload</p>
+                <p>Support for a single image upload only.</p>
+              </div>
+            </Upload.Dragger>
 
-            <div className='flex flex-column' style={{gap:"20px", padding:"10px"}}>
-              {
-              atomicAsset?.map((tag:any, index:number)=> (
-                <div key={index} className='flex flex-row' style={{
-                  gap:"10px",
-                  padding:"10px",
-                  border:"silver solid 2px",
-                  borderRadius:"7px",
-                  backgroundColor:"rgb(0,0,0,0.5)"
-
-                }}>
-                 <span style={{color:"grey"}}>{tag.name}</span>
-                 <span style={{color:"white"}}>{
-                  tag.name === 'Init-State' ? <ReactJson
-                  src={JSON.parse(tag.value)}
-                  theme={'ashes'}
-                  /> :
-                 tag.value
-                 }</span>
+            <div
+              className="flex flex-column"
+              style={{ gap: '20px', padding: '10px' }}
+            >
+              {atomicAsset?.map((tag: any, index: number) => (
+                <div
+                  key={index}
+                  className="flex flex-row"
+                  style={{
+                    gap: '10px',
+                    padding: '10px',
+                    border: 'silver solid 2px',
+                    borderRadius: '7px',
+                    backgroundColor: 'rgb(0,0,0,0.5)',
+                  }}
+                >
+                  <span style={{ color: 'grey' }}>{tag.name}</span>
+                  <span style={{ color: 'white' }}>
+                    {tag.name === 'Init-State' ? (
+                      <ReactJson src={JSON.parse(tag.value)} theme={'ashes'} />
+                    ) : (
+                      tag.value
+                    )}
+                  </span>
                 </div>
-              ))
-              }
+              ))}
             </div>
-            <Button style={{fontSize:"30px", padding:"30px", width:"100%"}} onClick={()=> handleDeploy()}>
+            <Button
+              style={{ fontSize: '30px', padding: '30px', width: '100%' }}
+              onClick={() => handleDeploy()}
+            >
               Deploy AI tagged asset
             </Button>
           </div>
-          <div className="flex flex-column align-center" style={{flex: 1, border:"silver solid 2px", borderRadius:"7px", padding:"20px 30px", gap:"30px",  overflow:"hidden", boxSizing:"border-box"}}>
-            <h2 style={{position:"relative"}}>
+          <div
+            className="flex flex-column align-center"
+            style={{
+              flex: 1,
+              border: 'silver solid 2px',
+              borderRadius: '7px',
+              padding: '20px 30px',
+              gap: '30px',
+              overflow: 'hidden',
+              boxSizing: 'border-box',
+            }}
+          >
+            <h2 style={{ position: 'relative' }}>
               Transaction History
-              <Button variant='outline' onClick={()=>{
-                const history = txCache.getAllTransactions();
-                setTransactionHistory(history);
-              }} style={{position:"absolute", bottom:"0px", top:"0px", right:"-145px"}}>Refresh</Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  const history = txCache.getAllTransactions();
+                  setTransactionHistory(history);
+                }}
+                style={{
+                  position: 'absolute',
+                  bottom: '0px',
+                  top: '0px',
+                  right: '-145px',
+                }}
+              >
+                Refresh
+              </Button>
             </h2>
-            <div className='flex flex-column' style={{gap:"20px", padding:"10px", boxSizing:"border-box"}}>
-              {
-              Object.entries(transactionHistory).map(([txid, txbody], index)=>{
-                console.log(txbody)
-                
-                return (
-                <div key={index} className='flex flex-column' style={{
-                  gap:"10px",
-                  padding:"10px",
-                  border:"silver solid 2px",
-                  borderRadius:"7px",
-                  backgroundColor:"rgb(0,0,0,0.5)"
+            <div
+              className="flex flex-column"
+              style={{ gap: '20px', padding: '10px', boxSizing: 'border-box' }}
+            >
+              {Object.entries(transactionHistory).map(
+                ([txid, txbody], index) => {
+                  console.log(txbody);
 
-                }}>
-                 <span style={{color:"grey"}}>{txid}</span>
-                 <span style={{color:"white"}}>
-                <ReactJson 
-                src={{...txbody, data:undefined, signature:undefined}} 
-                theme={"ashes"}
-                style={{maxWidth:"500px"}}
-                
-                />
-                 </span>
-                </div>
-              )})
-              }
-              </div>
+                  return (
+                    <div
+                      key={index}
+                      className="flex flex-column"
+                      style={{
+                        gap: '10px',
+                        padding: '10px',
+                        border: 'silver solid 2px',
+                        borderRadius: '7px',
+                        backgroundColor: 'rgb(0,0,0,0.5)',
+                      }}
+                    >
+                      <span style={{ color: 'grey' }}>{txid}</span>
+                      <span style={{ color: 'white' }}>
+                        <ReactJson
+                          src={{
+                            ...txbody,
+                            data: undefined,
+                            signature: undefined,
+                          }}
+                          theme={'ashes'}
+                          style={{ maxWidth: '500px' }}
+                        />
+                      </span>
+                    </div>
+                  );
+                },
+              )}
+            </div>
           </div>
         </div>
       </div>

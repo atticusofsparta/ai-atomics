@@ -19,20 +19,20 @@ fs.mkdirSync(projectDir, { recursive: true });
 // and the files we want to create.
 
 const copyFilePaths = [
-    '.eslintignore',
-    '.eslintrc',
-    '.nvmrc',
-    '.prettierignore',
-    '.prettierrc',
-    'commitlint.config.js',
-    'gitignore',
-    '.husky',
-    'tsconfig.json',
-    'vite.config.ts',
-    'package.json',
-    'README.md',
-    'template'
-]
+  '.eslintignore',
+  '.eslintrc',
+  '.nvmrc',
+  '.prettierignore',
+  '.prettierrc',
+  'commitlint.config.js',
+  'gitignore',
+  '.husky',
+  'tsconfig.json',
+  'vite.config.ts',
+  'package.json',
+  'README.md',
+  'template',
+];
 const templateDir = path.resolve(__dirname, 'template');
 const projectPackageJson = require(path.join(projectDir, 'package.json'));
 const nvmrc = require(path.join(projectDir, '.nvmrc'));
@@ -51,18 +51,15 @@ fs.cpSync(templateDir, projectDir, { recursive: true });
 // new project directory.
 fs.renameSync(
   path.join(projectDir, 'gitignore'),
-  path.join(projectDir, '.gitignore')
+  path.join(projectDir, '.gitignore'),
 );
-
-
-
 
 // Update the project's package.json with the new project name
 projectPackageJson.name = projectName;
 
 fs.writeFileSync(
   path.join(projectDir, 'package.json'),
-  JSON.stringify(projectPackageJson, null, 2)
+  JSON.stringify(projectPackageJson, null, 2),
 );
 
 // Run `npm install` in the project directory to install
